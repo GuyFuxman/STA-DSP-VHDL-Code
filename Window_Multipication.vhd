@@ -21,7 +21,6 @@ port(
 	asi_sink_valid_data	 : in std_logic; -- valid for start convolution, start when fft need for data.(start of pucket)
 	asi_sink_data		 : in std_logic_vector(width_input_data_bits - 1 downto 0); -- s10_En0 ,input data 
 	aso_source_data		 : out std_logic_vector(width_input_data_bits - 1 downto 0); -- s10_En0 ,output data
-	nco  : out std_logic_vector(9 downto 0);
 	aso_Window_Multipication : out std_logic
 
 );
@@ -61,16 +60,19 @@ begin
 					end if;
 					
 				when start => 
-					if index_hann = samples - 1 then 
+					if index_hann = samples - 2 then 
 						index_hann <= 0;
 						state <= idle;
 					else
 						s_convolution <= to_integer(ram(index_hann)) * to_integer(signed(asi_sink_data));
 						index_hann <= index_hann + 1;
+						if asi_sink_valid_data = '1' then
+							index_hann <= 0;
+						end if;
+						
 					end if;
 			end case;	
 		end if;
     end process;
 aso_source_data <= std_logic_vector(to_signed(s_convolution/256,width_input_data_bits)); -- 2^8 because we dont need fix point number
-nco <= "0000010100";
 end arch_Window_Multipication;
