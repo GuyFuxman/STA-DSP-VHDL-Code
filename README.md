@@ -1,1 +1,2 @@
-Working 16k FFT, 200MHz clock
+Working 16k Hann windowed FFT, 100MHz.
+
