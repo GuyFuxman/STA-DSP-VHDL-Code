@@ -51,14 +51,16 @@ Entity FFT_Result_Manager is
 		  asi_sink_FFT_data		  		  : in std_logic_vector((FFT_In_Data_Width * 2) + FFT_Transform_Width downto 0);
 		  
 		  aso_source_ready      		  : out std_logic;
-		  aso_source_bit_reversed       : out std_logic_vector((FFT_Transform_Width - 1) downto 0);
-		  aso_source_FFT_real_data      : out std_logic_vector((FFT_In_Data_Width - 1) downto 0);
-		  aso_source_FFT_imag_data      : out std_logic_vector((FFT_In_Data_Width - 1) downto 0);
+		  aso_source_bit_reversed         : out std_logic_vector((FFT_Transform_Width - 1) downto 0);
+		  aso_source_FFT_real_data        : out std_logic_vector((FFT_In_Data_Width - 1) downto 0);
+		  aso_source_FFT_imag_data        : out std_logic_vector((FFT_In_Data_Width - 1) downto 0);
+
+		  Packet_Manager_sop,Packet_Manager_eop,Packet_Manager_valid    : out std_Logic
 		  
-		  -- Debug Outputs
+		  /*-- Debug Outputs
 		  o_cordic_try_x	                 : out std_logic_vector((FFT_In_Data_Width - 1) downto 0);
 		  o_cordic_try_y	                 : out std_logic_vector((FFT_In_Data_Width - 1) downto 0);
-		  o_counter : out std_logic_vector (FFT_Max_Transform_Width downto 0)
+		  o_counter : out std_logic_vector (FFT_Max_Transform_Width downto 0)*/
 		  --	
 		  );
 		  
@@ -91,11 +93,11 @@ Begin
 	aso_source_FFT_imag_data <= asi_sink_FFT_data(((FFT_In_Data_Width) + FFT_Transform_Width) downto (FFT_Transform_Width + 1)) when s_between_packets = '1' else (others => '0');
 	
 	
-	-- Debug Outputs
+	/*-- Debug Outputs
 	o_cordic_try_x <= (others => '1');
 	o_cordic_try_y <= (others => '0');
 	o_counter <= std_logic_vector(to_unsigned(s_counter, FFT_Transform_Width + 1));
-	--
+	--*/
 
 	Process(rsi_sink_reset_n, csi_sink_clk)
 	Begin
@@ -106,6 +108,10 @@ Begin
 			s_between_packets <= '0';
 			
 		elsif (rising_edge(csi_sink_clk)) then
+
+			Packet_Manager_sop <= asi_sink_FFT_sop;
+			Packet_Manager_eop <= asi_sink_FFT_eop;
+			Packet_Manager_valid <= asi_sink_FFT_valid;
 			
 			if (asi_sink_FFT_sop = '1' and asi_sink_FFT_valid = '1') then -- FFT Start of Packet 
 				

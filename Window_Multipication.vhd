@@ -33,7 +33,7 @@ type mem_t is array(0 to samples-1) of unsigned(width_memory_data-1 downto 0); -
 signal ram : mem_t;
 attribute ram_init_file : string;
 attribute ram_init_file of ram :
-signal is "mif_hann.mif";
+signal is "Hann1024.mif";
 
 TYPE STATE_TYPE IS (idle, start);
 signal state : STATE_TYPE;
