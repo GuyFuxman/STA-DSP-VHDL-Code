@@ -19,9 +19,10 @@ port(
 	csi_sink_clk	 	 : in std_logic; -- clock
 	rsi_sink_reset	 	 : in std_logic; -- reset in LOW = '0'
 	asi_sink_valid_data	 : in std_logic; -- valid for start convolution, start when fft need for data.(start of pucket)
-	asi_sink_data		 : in std_logic_vector(width_input_data_bits - 1 downto 0); -- s10_En0 ,input data 
+	asi_sink_data		 : in std_logic_vector(width_input_data_bits - 1 downto 0); -- s10_En0 ,input data
+	asi_sink_sop, asi_sink_eop, asi_sink_valid : in std_logic;
 	aso_source_data		 : out std_logic_vector(width_input_data_bits - 1 downto 0); -- s10_En0 ,output data
-	aso_Window_Multipication : out std_logic
+	aso_Window_Multipication,aso_source_sop, aso_source_eop, aso_source_valid : out std_logic
 
 );
 end Window_Multipication;  
@@ -49,27 +50,39 @@ begin
 			index_hann <= 0;
 			state <= idle;
 			aso_Window_Multipication <= '0';
+			aso_source_valid <= '0';
+
 		elsif rising_edge(csi_sink_clk) then 
+			aso_source_sop <= asi_sink_sop;
+			aso_source_eop <= asi_sink_eop;	
+		
 			case state is 
 				when idle => 
 					s_convolution <= 0;
 					index_hann <= 0;
-					if asi_sink_valid_data = '1' then
+					if asi_sink_sop = '1'  and asi_sink_valid = '1' then -- Maybe Switch to sop
 						state <= start;
 						aso_Window_Multipication <= '1';
+						aso_source_valid <= '1';
 					end if;
 					
 				when start => 
-					if index_hann = samples - 2 then 
+					aso_source_valid <= '1';
+					if (asi_sink_valid = '1') then
+						if ((index_hann = samples - 2) or (asi_sink_sop = '1')) then 
+							index_hann <= 0;
+							state <= idle;
+						else
+							s_convolution <= to_integer(ram(index_hann)) * to_integer(signed(asi_sink_data));
+							index_hann <= index_hann + 1;
+							if asi_sink_eop = '1' then -- Maybe Switch to eop
+								index_hann <= 0;
+							end if;
+
+						end if;
+					else 
 						index_hann <= 0;
 						state <= idle;
-					else
-						s_convolution <= to_integer(ram(index_hann)) * to_integer(signed(asi_sink_data));
-						index_hann <= index_hann + 1;
-						if asi_sink_valid_data = '1' then
-							index_hann <= 0;
-						end if;
-						
 					end if;
 			end case;	
 		end if;

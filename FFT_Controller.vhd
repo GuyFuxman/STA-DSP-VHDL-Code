@@ -46,10 +46,10 @@ use ieee.numeric_std.all;
 Entity FFT_Controller is
 
 	Generic(FFT_In_Data_Width       : integer   := 16;
-			  FFT_Transform_Width     : integer   := 9;
-			  FFT_Max_Transform_Width : integer   := 9;
-			  FFT_inverse			     : std_Logic := '0';
-			  imag_data               : std_logic_vector := "0000000000000000");
+			FFT_Transform_Width     : integer   := 9;
+			FFT_Max_Transform_Width : integer   := 9;
+			FFT_inverse			     : std_Logic := '0';
+			imag_data               : std_logic_vector := "0000000000000000");
 	
 	Port(csi_sink_clk     				  : in std_logic;
 		  rsi_sink_reset_n 				  : in std_logic;
