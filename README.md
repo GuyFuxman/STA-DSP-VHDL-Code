@@ -1,2 +1,4 @@
-Working 16k Hann windowed FFT on 100MHz.
-Data converter to HPS added : 32 bit of squared data and 32 bit of bit-reversed counter.
+Working 16k Hann windowed FFT on 150MHz.
+Added RAM and Packeted Windowing + Fixed Reset Problem (Only DeBounce Shit Now)
+
+Only thing is SignalTap is problematic on 150MHz with the RAM implementation.
